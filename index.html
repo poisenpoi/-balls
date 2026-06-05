@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SmartPing Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="dashboard-shell">
+      <section class="topbar" aria-label="Ringkasan sistem">
+        <div>
+          <p class="eyebrow">SmartPing</p>
+          <h1>Dashboard Pelontar Bola Pingpong Otomatis</h1>
+        </div>
+        <div class="mode-pill" id="modePill">
+          <span class="status-dot"></span>
+          <span id="modeLabel">Mode Manual</span>
+        </div>
+      </section>
+
+      <section class="status-grid" aria-label="Status utama">
+        <article class="panel primary-status">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Logic Switch Bypass</p>
+              <h2 id="switchState">Toggle HIGH</h2>
+            </div>
+            <button class="icon-button" id="toggleMode" type="button" aria-label="Ganti mode">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 7h10a5 5 0 0 1 0 10H7A5 5 0 0 1 7 7Zm0 3a2 2 0 0 0 0 4 2 2 0 0 0 0-4Z" />
+              </svg>
+            </button>
+          </div>
+          <div class="route-map" aria-hidden="true">
+            <div class="route-node legacy">Potensiometer Analog</div>
+            <div class="route-line old-path active"></div>
+            <div class="route-relay">Relay NC/NO</div>
+            <div class="route-line smart-path"></div>
+            <div class="route-node digital">Driver Digital PWM</div>
+          </div>
+          <p class="status-note" id="routeNote">
+            Jalur motor tetap tersambung ke sistem analog bawaan. ESP32 menjaga relay OFF.
+          </p>
+        </article>
+
+        <article class="panel metric-panel">
+          <p class="panel-kicker">Catu Daya</p>
+          <div class="metric-row">
+            <strong>24V DC</strong>
+            <span>PSU utama</span>
+          </div>
+          <div class="meter">
+            <span style="width: 84%"></span>
+          </div>
+          <p class="mini-copy">XL4015 menurunkan suplai ke 5V untuk ESP32, driver logic, dan relay.</p>
+        </article>
+
+        <article class="panel metric-panel warning">
+          <p class="panel-kicker">Proteksi Transisi</p>
+          <div class="metric-row">
+            <strong>4.0s</strong>
+            <span>delay relay</span>
+          </div>
+          <div class="meter">
+            <span style="width: 100%"></span>
+          </div>
+          <p class="mini-copy">Jeda memastikan motor berhenti sebelum jalur listrik berpindah.</p>
+        </article>
+      </section>
+
+      <section class="main-grid">
+        <article class="panel controls-panel">
+          <div class="panel-header compact">
+            <div>
+              <p class="panel-kicker">Kontrol Smart</p>
+              <h2>Motor & Feeder</h2>
+            </div>
+            <span class="lock-badge" id="controlLock">Terkunci</span>
+          </div>
+
+          <div class="control-list">
+            <label class="slider-row" for="throwerA">
+              <span>Pelontar A</span>
+              <output id="throwerAValue">0%</output>
+              <input id="throwerA" type="range" min="0" max="100" value="0" disabled />
+            </label>
+            <label class="slider-row" for="throwerB">
+              <span>Pelontar B</span>
+              <output id="throwerBValue">0%</output>
+              <input id="throwerB" type="range" min="0" max="100" value="0" disabled />
+            </label>
+            <label class="slider-row" for="feeder">
+              <span>Feeder</span>
+              <output id="feederValue">0%</output>
+              <input id="feeder" type="range" min="0" max="100" value="0" disabled />
+            </label>
+          </div>
+
+          <div class="button-row">
+            <button class="tool-button" id="stopAll" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8h8v8H8z" /></svg>
+              Stop
+            </button>
+            <button class="tool-button accent" id="presetLoop" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h8a4 4 0 0 1 0 8H6m3-3-3 3 3 3" /></svg>
+              Preset
+            </button>
+          </div>
+        </article>
+
+        <article class="panel schematic-panel">
+          <div class="panel-header compact">
+            <div>
+              <p class="panel-kicker">Arsitektur</p>
+              <h2>Rute Daya & Kontrol</h2>
+            </div>
+          </div>
+          <svg class="schematic" viewBox="0 0 760 360" role="img" aria-label="Diagram arsitektur SmartPing">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" />
+              </marker>
+            </defs>
+            <rect x="36" y="44" width="132" height="78" rx="8" class="svg-box power" />
+            <text x="102" y="78" text-anchor="middle">PSU 24V</text>
+            <text x="102" y="100" text-anchor="middle" class="svg-small">Motor supply</text>
+
+            <rect x="36" y="214" width="132" height="78" rx="8" class="svg-box logic" />
+            <text x="102" y="248" text-anchor="middle">XL4015 5V</text>
+            <text x="102" y="270" text-anchor="middle" class="svg-small">Logic supply</text>
+
+            <rect x="288" y="130" width="150" height="96" rx="8" class="svg-box brain" />
+            <text x="363" y="168" text-anchor="middle">ESP32 DevKit V1</text>
+            <text x="363" y="192" text-anchor="middle" class="svg-small">WiFi 2dBm + PWM</text>
+
+            <rect x="566" y="44" width="146" height="78" rx="8" class="svg-box driver" />
+            <text x="639" y="78" text-anchor="middle">2x BTS7960</text>
+            <text x="639" y="100" text-anchor="middle" class="svg-small">Pelontar A/B</text>
+
+            <rect x="566" y="214" width="146" height="78" rx="8" class="svg-box driver" />
+            <text x="639" y="248" text-anchor="middle">L298N</text>
+            <text x="639" y="270" text-anchor="middle" class="svg-small">Feeder 24V</text>
+
+            <rect x="292" y="34" width="142" height="62" rx="8" class="svg-box relay" />
+            <text x="363" y="70" text-anchor="middle">3x Relay 5V</text>
+
+            <path d="M168 83 H292" class="svg-wire power-wire" marker-end="url(#arrow)" />
+            <path d="M434 65 H566" class="svg-wire power-wire" marker-end="url(#arrow)" />
+            <path d="M168 253 H288" class="svg-wire logic-wire" marker-end="url(#arrow)" />
+            <path d="M438 156 C484 140 504 96 566 85" class="svg-wire signal-wire" marker-end="url(#arrow)" />
+            <path d="M438 198 C484 216 506 248 566 253" class="svg-wire signal-wire" marker-end="url(#arrow)" />
+            <path d="M363 96 V130" class="svg-wire relay-wire" marker-end="url(#arrow)" />
+          </svg>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header compact">
+            <div>
+              <p class="panel-kicker">Pin ESP32 Original</p>
+              <h2>Pemetaan I/O</h2>
+            </div>
+          </div>
+          <div class="pin-table" role="table" aria-label="Pemetaan pin">
+            <div role="row"><span>17</span><strong>Toggle Switch</strong><em>INPUT_PULLUP</em></div>
+            <div role="row"><span>14</span><strong>Master Enable BTS7960</strong><em>R_EN/L_EN</em></div>
+            <div role="row"><span>4</span><strong>PWM Pelontar A</strong><em>RPWM</em></div>
+            <div role="row"><span>5</span><strong>PWM Pelontar B</strong><em>RPWM</em></div>
+            <div role="row"><span>13</span><strong>PWM Feeder</strong><em>ENA L298N</em></div>
+            <div role="row"><span>25</span><strong>Relay Pelontar A</strong><em>Active-Low</em></div>
+            <div role="row"><span>26</span><strong>Relay Pelontar B</strong><em>Active-Low</em></div>
+            <div role="row"><span>27</span><strong>Relay Feeder</strong><em>Active-Low</em></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header compact">
+            <div>
+              <p class="panel-kicker">Failsafe</p>
+              <h2>Checklist Runtime</h2>
+            </div>
+          </div>
+          <div class="check-list">
+            <label><input type="checkbox" checked /> Relay HIGH sebelum OUTPUT</label>
+            <label><input type="checkbox" checked /> Pin flash internal dihindari</label>
+            <label><input type="checkbox" checked /> Brownout detector dibypass</label>
+            <label><input type="checkbox" checked /> WiFi TX power dibatasi 2dBm</label>
+            <label><input type="checkbox" checked /> LPWM BTS7960 ke Ground</label>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
