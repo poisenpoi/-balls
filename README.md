@@ -14,6 +14,12 @@ Dashboard statis untuk sistem SmartPing, pelontar bola pingpong otomatis berbasi
 
 Buka `index.html` langsung di browser. Dashboard ini belum terhubung ke ESP32 secara realtime; interaksi yang ada adalah simulasi UI untuk memvisualkan perilaku sistem SmartPing.
 
+## GitHub Pages
+
+Repo ini siap dipublikasikan lewat GitHub Pages menggunakan workflow `.github/workflows/pages.yml`. Setelah Pages aktif, dashboard akan tersedia di:
+
+`https://poisenpoi.github.io/-balls/`
+
 ## Catatan Hardware
 
 - Relay 5V active-low tetap OFF saat boot supaya jalur motor kembali ke mode Manual.
